@@ -44,7 +44,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/update_tv_version"
+                    android:id="@+id/tv_update_version"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
                     android:layout_weight="1"
@@ -53,7 +53,7 @@
                     android:textSize="13sp"/>
 
                 <TextView
-                    android:id="@+id/update_tv_size"
+                    android:id="@+id/tv_update_size"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
                     android:layout_weight="1"
@@ -65,9 +65,11 @@
 
 
         <ImageButton
+            android:id="@+id/ib_update_close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
+            android:onClick="onClose"
             android:layout_marginRight="12dp"
             android:layout_marginTop="12dp"
             android:background="@mipmap/update_close"
@@ -101,14 +103,16 @@
         </ScrollView>
 
         <Button
+            android:id="@+id/btn_update_confirm"
             android:layout_width="176dp"
             android:layout_height="40dp"
             android:layout_marginLeft="35dp"
             android:layout_marginRight="35dp"
             android:layout_marginTop="24dp"
-            android:background="@drawable/update_tv_update"
+            android:background="@drawable/shape_update_tv_update"
             android:gravity="center"
             android:text="立即更新"
+            android:onClick="onDownload"
             android:textColor="#FFFFFF"
             android:textSize="16sp"/>
 

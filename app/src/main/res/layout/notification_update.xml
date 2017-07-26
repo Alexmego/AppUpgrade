@@ -56,7 +56,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_toLeftOf="@id/notification_update_progress_text"
-                android:gravity="center" />
+                android:gravity="center"/>
         </RelativeLayout>
     </RelativeLayout>
 

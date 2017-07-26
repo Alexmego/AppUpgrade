@@ -12,7 +12,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        AppUpdateManager.getInstance().checkUpdate(this);
+        AppUpdateManager.getManager().checkUpdate(this);
     }
 
     @Override

@@ -8,6 +8,7 @@ import android.os.Parcelable;
  */
 
 public class ApkInfo implements Parcelable {
+
     public static final String APK_SAVE_NAME="APP.apk";
     public static final String APK_SAVE_DIR="app";
     private String versionName;
@@ -74,6 +75,33 @@ public class ApkInfo implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-
+        dest.writeString(this.versionName);
+        dest.writeString(this.downUrl);
+        dest.writeString(this.apkName);
+        dest.writeString(this.feature);
+        dest.writeString(this.size);
     }
+
+    public ApkInfo() {
+    }
+
+    protected ApkInfo(Parcel in) {
+        this.versionName = in.readString();
+        this.downUrl = in.readString();
+        this.apkName = in.readString();
+        this.feature = in.readString();
+        this.size = in.readString();
+    }
+
+    public static final Parcelable.Creator<ApkInfo> CREATOR = new Parcelable.Creator<ApkInfo>() {
+        @Override
+        public ApkInfo createFromParcel(Parcel source) {
+            return new ApkInfo(source);
+        }
+
+        @Override
+        public ApkInfo[] newArray(int size) {
+            return new ApkInfo[size];
+        }
+    };
 }

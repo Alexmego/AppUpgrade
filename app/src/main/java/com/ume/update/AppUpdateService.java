@@ -19,20 +19,20 @@ import android.support.v7.app.NotificationCompat;
 import android.widget.RemoteViews;
 
 import com.ume.update.model.ApkInfo;
-import com.ume.update.model.UpdateConstrant;
+import com.ume.update.model.UpdateConstant;
 import com.ume.update.network.UpdateDomestic;
 import com.ume.update.utils.ToastUtils;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
 
-import static com.ume.update.model.UpdateConstrant.DOWNLOAD_URL;
-import static com.ume.update.model.UpdateConstrant.KEY_DOWNLOAD_RESULT;
-import static com.ume.update.model.UpdateConstrant.KEY_FILENAME;
-import static com.ume.update.model.UpdateConstrant.KEY_PERCENT;
-import static com.ume.update.model.UpdateConstrant.MSG_DOWNLOAD_PROGRESS;
-import static com.ume.update.model.UpdateConstrant.MSG_DOWNLOAD_RESULT;
-import static com.ume.update.model.UpdateConstrant.NOTIFICATION_ID;
+import static com.ume.update.model.UpdateConstant.DOWNLOAD_URL;
+import static com.ume.update.model.UpdateConstant.KEY_DOWNLOAD_RESULT;
+import static com.ume.update.model.UpdateConstant.KEY_FILENAME;
+import static com.ume.update.model.UpdateConstant.KEY_PERCENT;
+import static com.ume.update.model.UpdateConstant.MSG_DOWNLOAD_PROGRESS;
+import static com.ume.update.model.UpdateConstant.MSG_DOWNLOAD_RESULT;
+import static com.ume.update.model.UpdateConstant.NOTIFICATION_ID;
 
 
 public class AppUpdateService extends Service implements IUpdateDownloadListener {
@@ -40,8 +40,6 @@ public class AppUpdateService extends Service implements IUpdateDownloadListener
     private final AppUpdateBinder mBinder = new AppUpdateBinder();
 
     private String mDownloadUrl;
-
-    private IUpdateDialogListener mUpdateDialogListener;
 
     private Context mContext;
 
@@ -58,49 +56,43 @@ public class AppUpdateService extends Service implements IUpdateDownloadListener
     @Override
     public void onCreate() {
         super.onCreate();
-        this.mContext = getApplicationContext();
-        initNotification();
+        mContext = getApplicationContext();
         mHandler = new MyHandler(this);
+        initNotification();
     }
 
 
     private void updateProgress(Message msg) {
-
-        int percentage = msg.getData().getInt(UpdateConstrant.KEY_PERCENT);
-
-        // TODO: 2017/7/14 应用处于前台，不显示通知
-
-//        if (contentView != null && Utils.isAppOnForeground(mContext)) {
-
+        int percentage = msg.getData().getInt(UpdateConstant.KEY_PERCENT);
         if (contentView != null) {
             contentView.setTextViewText(R.id.notification_update_progress_text, percentage + "%");
             contentView.setProgressBar(R.id.notification_update_progress_bar, 100, percentage, false);
-            mNotificationManager.notify(UpdateConstrant.NOTIFICATION_ID, mNotification);
+            mNotificationManager.notify(UpdateConstant.NOTIFICATION_ID, mNotification);
         }
 
 
     }
 
     private void handleDownloadResult(Message msg) {
-        String fileName = msg.getData().getString(UpdateConstrant.KEY_FILENAME);
-        int downloadResult = msg.getData().getInt(UpdateConstrant.KEY_DOWNLOAD_RESULT);
+        String fileName = msg.getData().getString(UpdateConstant.KEY_FILENAME);
+        int downloadResult = msg.getData().getInt(UpdateConstant.KEY_DOWNLOAD_RESULT);
         switch (downloadResult) {
-            case UpdateConstrant.FLAG_CANCEL_UPDATE:
+            case UpdateConstant.FLAG_CANCEL_UPDATE:
                 ToastUtils.showShort(mContext, R.string.tip_cancelupdate);
-
                 showNotification("取消下载", "已取消下载", new Intent(mContext, MainActivity.class));
+
                 break;
-            case UpdateConstrant.FLAG_DOWNLOAD_ERROR:
+            case UpdateConstant.FLAG_DOWNLOAD_ERROR:
                 ToastUtils.showShort(mContext, R.string.tip_update_error);
                 showNotification("更新出错", "更新出错，请稍后再试", new Intent(mContext, MainActivity.class));
 
                 break;
-            case UpdateConstrant.FLAG_NO_ENOUGH_SPACE:
+            case UpdateConstant.FLAG_NO_ENOUGH_SPACE:
                 ToastUtils.showShort(mContext, R.string.tip_no_enough_space);
                 showNotification("下载出错，", "存储空间不足", new Intent(mContext, MainActivity.class));
 
                 break;
-            case UpdateConstrant.FLAG_DOWNLOAD_SUCCESS:
+            case UpdateConstant.FLAG_DOWNLOAD_SUCCESS:
                 openDownloadFile(mContext, null);
                 break;
         }
@@ -127,12 +119,10 @@ public class AppUpdateService extends Service implements IUpdateDownloadListener
     }
 
     private void showNotification(String ticker, String message, Intent intent) {
-        PendingIntent contentIntent = PendingIntent.getActivity(
-                mContext, NOTIFICATION_ID, intent,
+        PendingIntent contentIntent = PendingIntent.getActivity(mContext, NOTIFICATION_ID, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         setNotification(ticker, ticker, message, contentIntent);
-        mNotificationManager.notify(
-                NOTIFICATION_ID, mNotification);
+        mNotificationManager.notify(NOTIFICATION_ID, mNotification);
     }
 
 
@@ -184,12 +174,12 @@ public class AppUpdateService extends Service implements IUpdateDownloadListener
 
 
     public void downloadStart() {
-        UpdateDomestic.downloadApk(mContext, this, mDownloadUrl);
+        UpdateDomestic.downloadApk(mContext, AppUpdateService.this, mDownloadUrl);
     }
 
     private void sendDownloadResult(int flag, String fileName) {
         Message msg = Message.obtain();
-        msg.what = UpdateConstrant.MSG_DOWNLOAD_RESULT;
+        msg.what = UpdateConstant.MSG_DOWNLOAD_RESULT;
         Bundle bundle = new Bundle();
         bundle.putInt(KEY_DOWNLOAD_RESULT, flag);
         bundle.putString(KEY_FILENAME, fileName);
@@ -205,7 +195,7 @@ public class AppUpdateService extends Service implements IUpdateDownloadListener
     @Override
     public void onProgress(int downloadPercentage) {
         Message msg = new Message();
-        msg.what = UpdateConstrant.MSG_DOWNLOAD_PROGRESS;
+        msg.what = UpdateConstant.MSG_DOWNLOAD_PROGRESS;
         Bundle bundle = new Bundle();
         bundle.putInt(KEY_PERCENT, downloadPercentage);
         msg.setData(bundle);
@@ -255,7 +245,10 @@ public class AppUpdateService extends Service implements IUpdateDownloadListener
                         mReference.get().updateProgress(msg);
                         break;
                     case MSG_DOWNLOAD_RESULT:
-                        mReference.get().handleDownloadResult(msg);
+                        AppUpdateService updateService = mReference.get();
+                        updateService.handleDownloadResult(msg);
+                        updateService.cancelNotification();
+                        AppUpdateManager.getManager().unBindService();
                         break;
                 }
             }

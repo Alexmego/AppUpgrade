@@ -9,9 +9,6 @@ import retrofit2.http.Url;
 public interface APIService {
     String BASE_URL = "http://www.baidu.com";
 
-
-//    downUrl ="http://www.wandoujia.com/apps/com.aspire.mm/binding?source=web_inner_referral_binded";
-
     @Streaming
     @GET
     Call<ResponseBody> downLoadFile(@Url String fileUrl);

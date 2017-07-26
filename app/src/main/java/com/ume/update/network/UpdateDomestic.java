@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.ume.update.AppUpdateService;
 import com.ume.update.model.ApkInfo;
-import com.ume.update.model.UpdateConstrant;
+import com.ume.update.model.UpdateConstant;
 import com.ume.update.utils.LogUtils;
 import com.ume.update.utils.Utils;
 
@@ -39,7 +39,7 @@ public class UpdateDomestic {
                     ThreadPoolManager.getInstance().executor(runnable);
                 } else {
                     if (service != null) {
-                        service.onUpdate(UpdateConstrant.FLAG_DOWNLOAD_ERROR, ApkInfo.APK_SAVE_NAME);
+                        service.onUpdate(UpdateConstant.FLAG_DOWNLOAD_ERROR, ApkInfo.APK_SAVE_NAME);
                     }
                 }
 
@@ -49,10 +49,8 @@ public class UpdateDomestic {
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Log.d(TAG, "onFailure: ", t);
                 if (service != null) {
-                    service.onUpdate(UpdateConstrant.FLAG_DOWNLOAD_ERROR, ApkInfo.APK_SAVE_NAME);
+                    service.onUpdate(UpdateConstant.FLAG_DOWNLOAD_ERROR, ApkInfo.APK_SAVE_NAME);
                 }
-
-
             }
         });
 
@@ -80,13 +78,15 @@ public class UpdateDomestic {
             if (Utils.checkFileExistence(mContext, ApkInfo.APK_SAVE_NAME)) {
                 Utils.deleteApkFile(mContext, ApkInfo.APK_SAVE_NAME);
             }
+
             if (Utils.isEnoughFreeSpace()) {
                 try {
+                    mUpdateService.onProgress(0);
                     File futureStudioIconFile = new File(mContext.getExternalFilesDir(ApkInfo.APK_SAVE_DIR), ApkInfo.APK_SAVE_NAME);
                     InputStream inputStream = null;
                     OutputStream outputStream = null;
                     try {
-                        byte[] fileReader = new byte[4096];
+                        byte[] fileReader = new byte[1024 * 500];
                         long fileSize = mResponse.body().contentLength();
                         long fileSizeDownloaded = 0;
                         inputStream = mResponse.body().byteStream();
@@ -106,11 +106,11 @@ public class UpdateDomestic {
                             }
 
                         }
-                        mFlag = UpdateConstrant.FLAG_DOWNLOAD_SUCCESS;
+                        mFlag = UpdateConstant.FLAG_DOWNLOAD_SUCCESS;
                         outputStream.flush();
                     } catch (IOException e) {
                         e.printStackTrace();
-                        mFlag = UpdateConstrant.FLAG_DOWNLOAD_ERROR;
+                        mFlag = UpdateConstant.FLAG_DOWNLOAD_ERROR;
                     } finally {
                         if (inputStream != null) {
                             inputStream.close();
@@ -122,10 +122,10 @@ public class UpdateDomestic {
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    mFlag = UpdateConstrant.FLAG_DOWNLOAD_ERROR;
+                    mFlag = UpdateConstant.FLAG_DOWNLOAD_ERROR;
                 }
             } else {
-                mFlag = UpdateConstrant.FLAG_NO_ENOUGH_SPACE;
+                mFlag = UpdateConstant.FLAG_NO_ENOUGH_SPACE;
             }
             mUpdateService.onUpdate(mFlag, ApkInfo.APK_SAVE_NAME);
             Log.i(TAG, "Download succeeded");

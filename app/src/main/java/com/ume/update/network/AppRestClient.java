@@ -73,7 +73,7 @@ public class AppRestClient {
                 }
             });
             HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor(HttpLoggingInterceptor.Logger.DEFAULT);
-            httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+            httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.NONE);
             return builder.connectTimeout(5, TimeUnit.SECONDS)
                     .addNetworkInterceptor(httpLoggingInterceptor)
                     .build();
